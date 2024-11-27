@@ -31,26 +31,29 @@ async function printNotes() {
 
 	console.log(chalk.bgBlue('Here is the list of notes:'))
 	notes.forEach(note => {
-		console.log(chalk.white(note.id), chalk.blue(note.title))
+		console.log(chalk.bgWhite(note.id), chalk.blue(note.title))
 	})
 }
+
 async function removeNote(id) {
-	let notes = await getNotes()
-	notes = notes.filter(note => note.id !== id)
-	await saveNotes(notes)
-	console.log(chalk.bgGreen('Note was removed!'))
+	const notes = await getNotes()
+
+	const filtered = notes.filter(note => note.id !== id)
+
+	await saveNotes(filtered)
+	console.log(chalk.red(`Note with id="${id}" has been removed.`))
 }
 
 async function editNote(id, title) {
 	let notes = await getNotes()
 	notes = notes.map(note => (note.id === id ? { ...note, title } : note))
 	await saveNotes(notes)
-	console.log(chalk.bgGreen('Note was updated!'))
+	console.log(chalk.bgGreen(`Note with id="${id}" has been updated!`))
 }
 
 module.exports = {
 	addNote,
-	printNotes,
+	getNotes,
 	removeNote,
 	editNote,
 }
