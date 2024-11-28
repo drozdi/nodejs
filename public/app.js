@@ -5,17 +5,39 @@ document.addEventListener('click', event => {
 			event.target.closest('li').remove()
 		})
 	} else if (event.target.dataset.type === 'edit') {
-		const newTitle = prompt('Новое название', event.target.dataset.title)
-		if (newTitle) {
-			const uNote = {
-				id: event.target.dataset.id,
-				title: newTitle,
+		const $li = event.target.closest('li')
+		const id = event.target.dataset.id
+		const title = event.target.dataset.title
+		const srcHtml = $li.innerHTML
+
+		$li.innerHTML = `
+      <input class="flex-fill me-4" type="text" value="${title}">
+			<div>
+        <button class="btn btn-success" data-type="save">Сохранить</button>
+        <button class="btn btn-danger" data-type="cancel">Отменить</button>
+      </div>
+    `
+
+		function onClick({ target }) {
+			if (target.dataset.type === 'cancel') {
+				$li.innerHTML = srcHtml
+				$li.removeEventListener('click', onClick)
+			} else if (target.dataset.type === 'save') {
+				const title = $li.querySelector('input').value
+				edit({ title, id }).then(() => {
+					$li.innerHTML = `
+						<span>${title}</span>
+						<div>
+							<button class="btn btn-primary" data-type="edit" data-id="${id}" data-title="${title}">Обновить</button>
+							<button class="btn btn-danger" data-type="remove" data-id="${id}">&times;</button>
+						</div>
+					`
+					$li.removeEventListener('click', onClick)
+				})
 			}
-			edit(uNote).then(() => {
-				event.target.closest('li').querySelector('span').innerHTML = uNote.title
-				event.target.dataset.title = uNote.title
-			})
 		}
+
+		$li.addEventListener('click', onClick)
 	}
 })
 
